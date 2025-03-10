@@ -1,0 +1,76 @@
+import streamlit as st
+import google.generativeai as genai
+
+# Configure Gemini API
+genai.configure(api_key="AIzaSyBOPX769Cryd3M76WgQOCxKGGUO9aFKl3o")
+
+# Custom CSS for a more visually appealing UI
+page_bg_img = """
+<style>
+    body {
+        background-image: url("https://source.unsplash.com/1600x900/?food,dining");
+        background-size: cover;
+        background-attachment: fixed;
+        font-family: 'Arial', sans-serif;
+    }
+    .stApp {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 2rem;
+        border-radius: 10px;
+    }
+    h1 {
+        color: #FF5733;
+        text-align: center;
+        font-size: 3rem;
+        font-weight: bold;
+    }
+    .stTextInput, .stSelectbox {
+        border-radius: 10px;
+        border: 2px solid #FF5733;
+        padding: 10px;
+    }
+    .stButton>button {
+        background-color: #FF5733;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1.2rem;
+    }
+    .recipe-box {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
+    }
+    .recipe-box h3 {
+        color: #27AE60;
+        text-align: center;
+        font-size: 1.8rem;
+    }
+</style>
+"""
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+# Function to generate a recipe
+def generate_recipe(ingredients, cuisine):
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    prompt = f"Create a gourmet-style recipe using {ingredients}. The cuisine should be {cuisine}. Provide step-by-step instructions and a short introduction."
+    response = model.generate_content(prompt)
+    return response.text if response else "No response from AI."
+
+# App UI
+st.title("🍽 Flavour Fusion: AI-Driven Recipe Blogging")
+st.markdown("### *Get AI-generated recipes in seconds!*")
+
+# User Inputs
+ingredients = st.text_input(" *Enter Recipe Name or Ingredients:*")
+cuisine = st.selectbox("*Choose a Cuisine:*", ["Italian", "Mexican", "Indian", "Chinese", "French"])
+
+if st.button("🍲 Generate Recipe"):
+    recipe = generate_recipe(ingredients, cuisine)
+    
+    if recipe:
+        st.markdown("<div class='recipe-box'><h3>🍛 Your AI-Generated Recipe:</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='recipe-box'>{recipe}</div>", unsafe_allow_html=True)
+    else:
+        st.error("⚠ No response from AI. Try again!")
